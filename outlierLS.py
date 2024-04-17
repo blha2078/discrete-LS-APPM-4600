@@ -39,14 +39,28 @@ plt.scatter(x_noiseless, y_outlier, color='red', label='Outlier')
 # Plot quadratic-linear regression
 quad_lin_y = quad_lin_coeff[0] * x_noiseless**2 
 plt.plot(x_noiseless, quad_lin_y, label='f1(x) = ax^2', linestyle='--')
+quad_lin_res = true_y - quad_lin_y
 
 # Plot quadratic regression
 quad_y = quad_coeff[0] * x_noiseless**2 + quad_coeff[1] * x_noiseless + quad_coeff[2]
 plt.plot(x_noiseless, quad_y, label='f2(x) = ax^2 + bx + c', linestyle='-.')
+quad_res = true_y - quad_y
 
 # Plot degree 5 polynomial regression
-degree4_y = sum(degree4_coeff[i] * x_noiseless**(5-i) for i in range(6))
+degree4_y = sum(degree4_coeff[i] * x_noiseless**(4-i) for i in range(5))
 plt.plot(x_noiseless, degree4_y, label='f3(x) = ax^5 + bx^4 + cx^3 + dx^2 + ex + f', linestyle=':')
+deg4_res = true_y - degree4_y
+
+plt.xlabel('x')
+plt.ylabel('y')
+plt.title('Polynomial Regression on Noiseless Data with Outlier')
+plt.legend()
+plt.grid(True)
+plt.show()
+
+plt.plot(x_noiseless, np.abs(quad_lin_res), label='f1(x) = ax^2', linestyle='--')
+plt.plot(x_noiseless, np.abs(quad_res), label='f2(x) = ax^2 + bx + c', linestyle='-.')
+plt.plot(x_noiseless, np.abs(deg4_res), label='f3(x) = ax^5 + bx^4 + cx^3 + dx^2 + ex + f', linestyle=':')
 
 plt.xlabel('x')
 plt.ylabel('y')
