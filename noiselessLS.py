@@ -1,84 +1,58 @@
 import numpy as np
 import matplotlib.pyplot as plt 
 
-x_range = np.linspace(0,5,100)
-
 def func(x):
     return x**2
 
-y = func(x_range)
-
-def least_squares_poly(x,y,type):
-    if type == "degree5":
-        X = np.vander(x,5)
-    elif type == "quad":
-        X = np.vstack((x**2,x,np.ones_like(x))).T
-    elif type == "quadlin":
-        X = np.vstack((x**2,np.ones_like(x))).T 
+def least_squares_poly(x, y, degree, only_x_squared=False):
+    """ Calculate polynomial regression coefficients using least squares. """
+    if only_x_squared:
+        # Only use x^2 term for the regression
+       X = np.vstack((x**2,np.ones_like(x))).T 
     else:
-        return 0
-    
+        # General polynomial fit
+        X = np.vander(x, degree + 1)
     coeffs = np.linalg.lstsq(X, y, rcond=None)[0]
-    
+    print(coeffs)
     return coeffs
 
-degree5_coeff = least_squares_poly(x_range,y,"degree5")
-quad_coeff = least_squares_poly(x_range,y,"quad")
-quad_lin_coeff= least_squares_poly(x_range,y,"quadlin")
+def plot_regression(x_data, y_data, x_range, coeffs, label, only_x_squared=False):
+    """ Plot regression curve along with the original data. """
+    if only_x_squared:
+        y_fit = coeffs[0]*x_range**2
+    else:
+        y_fit = np.polyval(coeffs, x_range)
+    plt.plot(x_range, y_fit, label=label, linestyle='--')
+    plt.grid(True)
 
-print("Coefficient (a) for f1(x) = ax^2 : ",quad_lin_coeff[0])
-print("Coefficients (a,b,c) for f2(x) = ax^2 + bx + c : ",quad_coeff)
-print("Coefficeints (a, b, c, d, e) for f3(x) = ax^4 + bx^3 + cx^2 + dx + e: ", degree5_coeff)
+def perform_and_plot(x_start, x_end):
+    x_clean = np.linspace(x_start, x_end, 5)
+    y_clean = func(x_clean) 
+    x_range = np.linspace(x_start, x_end, 100)
 
+    plt.figure(figsize=(8, 6))
 
-plt.figure(figsize=(8, 6))
+    # Pure quadratic fit ax^2
+    coeffs_quad = least_squares_poly(x_clean, y_clean, 2, only_x_squared=True)
+    plot_regression(x_clean, y_clean, x_range, coeffs_quad, 'f1(x) = ax^2', only_x_squared=True)
 
-# Plot data points
-plt.plot(x_range,y,label = 'True Function')
+    # Quadratic fit ax^2 + bx + c
+    coeffs_quad_lin = least_squares_poly(x_clean, y_clean, 2)
+    plot_regression(x_clean, y_clean, x_range, coeffs_quad_lin, 'f2(x) = ax^2 + bx + c')
 
-# Plot quadratic-linear regression
-quad_lin_y = quad_lin_coeff[0] * x_range**2 
-plt.plot(x_range, quad_lin_y, label='f1(x) = ax^2', linestyle='--')
+    # 4th degree polynomial fit ax^4 + bx^3 + cx^2 + dx + e
+    coeffs_degree4 = least_squares_poly(x_clean, y_clean, 4)
+    plot_regression(x_clean, y_clean, x_range, coeffs_degree4, 'f3(x) = ax^4 + bx^3 + cx^2 + dx + e')
 
-# Plot quadratic regression
-quad_y = quad_coeff[0] * x_range**2 + quad_coeff[1] * x_range + quad_coeff[2]
-plt.plot(x_range, quad_y, label='f2(x) = ax^2 + bx + c', linestyle='-.')
+    plt.plot(x_range, func(x_range), label='True Function')
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.title('Polynomial Regression Fit')
+    plt.legend()
+    plt.show()
 
-# Plot degree 5 polynomial regression
-degree5_y = sum(degree5_coeff[i] * x_range**(5-i) for i in range(5))
-plt.plot(x_range, degree5_y, label='f3(x) = ax^4 + bx^3 + cx^2 + dx + e', linestyle=':')
+# Perform regression on the interval [0, 5]
+perform_and_plot(0, 5)
 
-plt.xlabel('x')
-plt.ylabel('y')
-plt.title('Least Squares Regression')
-plt.legend()
-plt.grid(True)
-plt.show()
-
-#Repeat on interval [5,10]
-x_range = np.linspace(5,10,100)
-y = func(x_range)
-
-plt.figure(figsize=(8, 6))
-
-# Plot data points
-plt.plot(x_range,y,label = 'True Function')
-
-# Plot quadratic-linear regression
-quad_lin_y = quad_lin_coeff[0] * x_range**2 
-plt.plot(x_range, quad_lin_y, label='f1(x) = ax^2', linestyle='--')
-
-# Plot quadratic regression
-quad_y = quad_coeff[0] * x_range**2 + quad_coeff[1] * x_range + quad_coeff[2]
-plt.plot(x_range, quad_y, label='f2(x) = ax^2 + bx + c', linestyle='-.')
-
-# Plot degree 5 polynomial regression
-degree5_y = sum(degree5_coeff[i] * x_range**(4-i) for i in range(4))
-#plt.plot(x_range, degree5_y, label='f3(x) = ax^4 + bx^3 + cx^2 + dx + e', linestyle=':')
-
-plt.xlabel('x')
-plt.ylabel('y')
-plt.title('Least Squares Regression')
-plt.legend()
-plt.grid(True)
-plt.show()
+# Perform regression on the interval [5, 10]
+perform_and_plot(5, 10)
