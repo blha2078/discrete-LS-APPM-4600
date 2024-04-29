@@ -65,7 +65,7 @@ def perform_and_plot_heteroscedastic(x_start, x_end, use_weights=False):
     objective_func = func
     
     # Define your variance function
-    variance_func = lambda x: x**2
+    variance_func = lambda x: (x+0.01)**2
     
     # Generate heteroscedastic data
     y_true, y_observed = generate_heteroscedastic_data(x_noisy, objective_func, variance_func)
@@ -74,19 +74,23 @@ def perform_and_plot_heteroscedastic(x_start, x_end, use_weights=False):
     fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(6, 9), sharex=True)
 
     # Define weights
-    weights = np.linspace(1, 0.1, len(x_noisy))  # Example: Weight lower points more
+    # weights = np.linspace(1, 0.1, len(x_noisy))  # Example: Weight lower points more
+    # Compute weights based on the variance function
+    variance = variance_func(x_noisy)
+    weights = 1 / variance  # Inverse of variance as weights
+    print(weights)
         
     # Pure quadratic fit ax^2 with or without weighted least squares
     coeffs_quad_weighted = least_squares_poly(x_noisy, y_observed, 2, weights=weights, only_x_squared=True)
     plot_regression(y_observed, y_true, x_range, coeffs_quad_weighted, 'Weighted f1(x) = ax^2', ax1, ax2, ax3, only_x_squared=True)
     
-    # Quadratic fit ax^2 + bx + c with or without weighted least squares
-    coeffs_quad_lin_weighted = least_squares_poly(x_noisy, y_observed, 2, weights=weights)
-    plot_regression(y_observed, y_true, x_range, coeffs_quad_lin_weighted, 'Weighted f2(x) = ax^2 + bx + c', ax1, ax2, ax3)
+    # # Quadratic fit ax^2 + bx + c with or without weighted least squares
+    # coeffs_quad_lin_weighted = least_squares_poly(x_noisy, y_observed, 2, weights=weights)
+    # plot_regression(y_observed, y_true, x_range, coeffs_quad_lin_weighted, 'Weighted f2(x) = ax^2 + bx + c', ax1, ax2, ax3)
 
-    # 4th degree polynomial fit ax^4 + bx^3 + cx^2 + dx + e with or without weighted least squares
-    coeffs_degree4_weighted = least_squares_poly(x_noisy, y_observed, 4, weights=weights)
-    plot_regression(y_observed, y_true, x_range, coeffs_degree4_weighted, 'Weighted f3(x) = ax^4 + bx^3 + cx^2 + dx + e', ax1, ax2, ax3)
+    # # 4th degree polynomial fit ax^4 + bx^3 + cx^2 + dx + e with or without weighted least squares
+    # coeffs_degree4_weighted = least_squares_poly(x_noisy, y_observed, 4, weights=weights)
+    # plot_regression(y_observed, y_true, x_range, coeffs_degree4_weighted, 'Weighted f3(x) = ax^4 + bx^3 + cx^2 + dx + e', ax1, ax2, ax3)
 
     fig.suptitle('Weights used: {}'.format('Yes' if use_weights else 'No'))
 
