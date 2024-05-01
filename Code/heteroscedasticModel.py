@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def func(x):
-    return x**2
+    return np.sin(x)
 
 def generate_heteroscedastic_data(x, objective_func, variance_func):
     """ Generate heteroscedastic data based on an x array, objective function, and variance function. """
@@ -77,7 +77,7 @@ def perform_and_plot_heteroscedastic(x_start, x_end, use_weights=False):
     # weights = np.linspace(1, 0.1, len(x_noisy))  # Example: Weight lower points more
     # Compute weights based on the variance function
     variance = variance_func(x_noisy)
-    weights = 1 / variance  # Inverse of variance as weights
+    weights = np.sqrt(variance)  # Inverse of variance as weights
     print(weights)
         
     # Pure quadratic fit ax^2 with or without weighted least squares
