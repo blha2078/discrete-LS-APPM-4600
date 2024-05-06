@@ -5,13 +5,14 @@ from scipy.optimize import curve_fit
 def func(x):
     return 0.25*x**2 + 3*np.sin(x) - 2*x + 5
 
-def sin_series(x, a, b, c):
-    return a*np.sin(x) + b*np.sin(3*x) + c*np.sin(5*x)
+def sin_series(x, a, b,c,d):
+    return a*np.sin(x) + b*np.cos(x)+c*np.sin(0.5*x)+d*np.cos(0.5*x)
 
 def least_squares_poly(x, y, degree):
     X = np.vander(x, degree + 1, increasing=True)
     coeffs = np.linalg.lstsq(X, y, rcond=None)[0]
-    print(coeffs)
+    print(f"Degree {degree} coeffs:", coeffs )
+    print('\n')
     return coeffs
 
 def plot_fit_and_errors(x_noisy, y_noisy, x_range, y_true, models, noise_type, noise_level, interval):
@@ -22,9 +23,10 @@ def plot_fit_and_errors(x_noisy, y_noisy, x_range, y_true, models, noise_type, n
     # Fit models and plot
     for name, degree in models.items():
         if 'sin' in name:
-            popt, _ = curve_fit(sin_series, x_noisy, y_noisy, p0=[5, 0.75, .25])
+            popt, _ = curve_fit(sin_series, x_noisy, y_noisy, p0=[1,1,1,1])
             y_fit = sin_series(x_range, *popt)
-            print(popt)
+            print("Sin coefficients:",popt)
+            print('\n')
         else:
             coeffs = least_squares_poly(x_noisy, y_noisy, degree)
             y_fit = np.polyval(coeffs[::-1], x_range)
@@ -59,17 +61,29 @@ def plot_fit_and_errors(x_noisy, y_noisy, x_range, y_true, models, noise_type, n
     plt.show()
 
 def perform_and_plot(interval, noise_type='normal', noise_level=3):
-    x_noisy = np.linspace(interval[0], interval[1], 100)
+    x_noisy = np.linspace(interval[0], interval[1], 20*(interval[1]-interval[0]))
     y_true = func(x_noisy)
     
     if noise_type == 'normal':
         noise = np.random.normal(loc=0, scale=noise_level, size=len(x_noisy))
     elif noise_type == 'uniform':
-        noise = np.random.uniform(-noise_level, noise_level, size=len(x_noisy))
+        noise = np.random.uniform(-3*noise_level, 3*noise_level, size=len(x_noisy))
     y_noisy = y_true + noise
 
-    models = {'ax^2 + bx + c': 2, 'ax^4 + bx^3 + cx^2 + dx + e': 4, 'sin(x) + sin(5x) + sin(9x)': 'sin_series'}
+    models = {'ax^2 + bx + c': 2, 'ax^4 + bx^3 + cx^2 + dx + e': 4, 'asin(x) + bcos(x)+csin(0.5x)+dcos(0.5)x': 'sin_series'}
     plot_fit_and_errors(x_noisy, y_noisy, x_noisy, y_true, models, noise_type, noise_level, f'[{interval[0]}, {interval[1]}]')
 
 # Usage
-perform_and_plot([5, 10], 'normal', 1)
+# print("Section 1")
+# perform_and_plot([0, 5], 'normal', 1)
+# perform_and_plot([5, 10], 'normal', 1)
+
+# print("\nSection 2")
+# perform_and_plot([0, 10], 'normal', 3)
+# perform_and_plot([0, 10], 'uniform', 3)
+
+
+print("\nSection 3")
+perform_and_plot([0, 10], 'normal', 1)
+#perform_and_plot([0, 10], 'normal', 2)
+perform_and_plot([0, 10], 'normal', 5)
