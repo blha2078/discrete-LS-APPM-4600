@@ -47,7 +47,7 @@ def perform_and_plot(x_start, x_end):
     plt.plot(x_range, func(x_range), label='True Function')
     plt.xlabel('x')
     plt.ylabel('y')
-    plt.title('Polynomial Regression Fit')
+    plt.title('Noiseless Polynomial Regression Fit')
     plt.legend()
     plt.show()
 
