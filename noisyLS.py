@@ -16,7 +16,7 @@ def least_squares_poly(x, y, degree):
     return coeffs
 
 def plot_fit_and_errors(x_noisy, y_noisy, x_range, y_true, models, noise_type, noise_level, interval):
-    fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(12, 18))
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 12))
     ax1.scatter(x_noisy, y_noisy, color='red', label='Noisy Data', s=5)
     ax1.plot(x_range, y_true, label='True Function', color='green', linestyle='--')
 
@@ -36,7 +36,7 @@ def plot_fit_and_errors(x_noisy, y_noisy, x_range, y_true, models, noise_type, n
         residuals_noise = np.abs(y_fit - y_noisy)
 
         ax2.plot(x_range, residuals_model, label=f'Model Error: {name}')
-        ax3.plot(x_range, residuals_noise, label=f'Noise Error: {name}')
+        #ax3.plot(x_range, residuals_noise, label=f'Noise Error: {name}')
 
     # Set titles, labels, and legends
     ax1.set_title(f'Polynomial and Sine Series Regression: {noise_type.capitalize()} Noise (Level={noise_level}) on Interval {interval}')
@@ -50,6 +50,7 @@ def plot_fit_and_errors(x_noisy, y_noisy, x_range, y_true, models, noise_type, n
     ax2.set_ylabel('Error')
     ax2.legend(fontsize='small')
     ax2.grid(True)
+    ax2.set_ylim(0, 8)
 
     '''
     ax3.set_title('Absolute Error to the Noisy Data')
@@ -84,6 +85,7 @@ def perform_and_plot(interval, noise_type='normal', noise_level=3):
 
 
 print("\nSection 3")
+perform_and_plot([0, 10], 'normal', 3)
+perform_and_plot([0, 10], 'uniform', 3)
 perform_and_plot([0, 10], 'normal', 1)
-#perform_and_plot([0, 10], 'normal', 2)
 perform_and_plot([0, 10], 'normal', 5)
